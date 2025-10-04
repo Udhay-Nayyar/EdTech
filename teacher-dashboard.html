@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdTech Platform - Teacher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+        }
+
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+            color: #d1d5db;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background-color: #3b82f6;
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-gray-900 text-white flex flex-col p-4 fixed h-full">
+        <div class="flex items-center mb-8">
+            <svg class="h-8 w-8 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 class="text-2xl font-bold">EdTech Platform</h1>
+        </div>
+        <nav class="flex-1">
+            <ul>
+                <li><a href="#dashboard" class="sidebar-link active flex items-center p-3 rounded-lg mb-2"
+                        data-section="dashboard">
+                        <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>Dashboard</a></li>
+                <li><a href="#students" class="sidebar-link flex items-center p-3 rounded-lg mb-2"
+                        data-section="students">
+                        <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>My Students</a></li>
+                <li><a href="#quizzes" class="sidebar-link flex items-center p-3 rounded-lg mb-2"
+                        data-section="quizzes">
+                        <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path>
+                            <polyline points="13 2 13 9 20 9"></polyline>
+                            <path d="M16 13a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>Quiz Management</a></li>
+                <li><a href="#content" class="sidebar-link flex items-center p-3 rounded-lg mb-2"
+                        data-section="content">
+                        <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>Content Upload</a></li>
+                <li><a href="#study-rooms" class="sidebar-link flex items-center p-3 rounded-lg mb-2"
+                        data-section="study-rooms">
+                        <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a3.004 3.004 0 714.288 0M15 7a3 3 0 11-6 0 3 3 0 716 0zm6 3a2 2 0 11-4 0 2 2 0 714 0zM7 10a2 2 0 11-4 0 2 2 0 714 0z" />
+                        </svg>Study Rooms</a></li>
+                <li><a href="#live-lecture" class="sidebar-link flex items-center p-3 rounded-lg mb-2"
+                        data-section="live-lecture">
+                        <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>Live Lecture</a></li>
+            </ul>
+        </nav>
+        <div class="mt-auto">
+            <div class="flex items-center p-3 bg-gray-800 rounded-lg cursor-pointer" id="profile-button">
+                <img src="https://placehold.co/40x40/60a5fa/ffffff?text=T" alt="Teacher Profile" class="rounded-full">
+                <div class="ml-3">
+                    <p class="font-semibold" id="sidebar-teacher-name">Loading...</p>
+                    <p class="text-sm text-gray-400">Teacher</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 ml-64 p-8 overflow-y-auto bg-gray-800 text-gray-200">
+
+        <section id="dashboard" class="main-content active">
+            <h2 class="text-3xl font-bold text-white mb-2">Welcome back, <span id="teacher-name">Loading...</span>!</h2>
+            <p class="text-gray-400 mb-4">Subject: <span id="teacher-subject"></span> | Experience: <span
+                    id="teacher-experience"></span> years</p>
+            <p class="text-gray-400 mb-8">Ready to inspire minds today?</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-blue-600 p-6 rounded-lg shadow-lg text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">My Students</h3>
+                            <p class="text-2xl font-bold" id="student-count">0</p>
+                        </div>
+                        <svg class="h-12 w-12 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="bg-green-600 p-6 rounded-lg shadow-lg text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Active Quizzes</h3>
+                            <p class="text-2xl font-bold" id="quiz-count">0</p>
+                        </div>
+                        <svg class="h-12 w-12 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="bg-purple-600 p-6 rounded-lg shadow-lg text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Study Rooms</h3>
+                            <p class="text-2xl font-bold" id="room-count">0</p>
+                        </div>
+                        <svg class="h-12 w-12 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a3.004 3.004 0 714.288 0M15 7a3 3 0 11-6 0 3 3 0 716 0zm6 3a2 2 0 11-4 0 2 2 0 714 0zM7 10a2 2 0 11-4 0 2 2 0 714 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-white mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <button onclick="showSection('quizzes')"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-left">
+                            Create New Quiz
+                        </button>
+                        <button onclick="showSection('study-rooms')"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-left">
+                            Create Study Room
+                        </button>
+                        <button onclick="showSection('content')"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-left">
+                            Upload Content
+                        </button>
+                        <button onclick="showSection('live-lecture')"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-left">
+                            Start Live Lecture
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-white mb-4">Recent Activity</h3>
+                    <div id="recent-activity" class="space-y-3">
+                        <p class="text-gray-400">Loading recent activity...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="students" class="main-content">
+            <h2 class="text-3xl font-bold text-white mb-6">My Students</h2>
+            <div id="students-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-gray-400 col-span-full">Loading students...</p>
+            </div>
+        </section>
+
+        <section id="quizzes" class="main-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">Quiz Management</h2>
+                <a href="quiz-creator.html"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create New Quiz
+                </a>
+            </div>
+            <div id="quizzes-container" class="space-y-4">
+                <p class="text-gray-400">Loading quizzes...</p>
+            </div>
+        </section>
+
+        <section id="content" class="main-content">
+            <h2 class="text-3xl font-bold text-white mb-6">Content Upload</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-white mb-4">Upload Video Lecture</h3>
+                    <a href="video-upload.html"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-block">
+                        Upload Video
+                    </a>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-white mb-4">Upload Notes</h3>
+                    <a href="notes-upload.html"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg inline-block">
+                        Upload Notes
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="study-rooms" class="main-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">Study Rooms</h2>
+                <button onclick="openCreateRoomModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create Room
+                </button>
+            </div>
+            <div id="teacher-study-rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-gray-400 col-span-full">Loading study rooms...</p>
+            </div>
+        </section>
+
+        <section id="live-lecture" class="main-content">
+            <h2 class="text-3xl font-bold text-white mb-6">Live Lecture</h2>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                <div id="live-lecture-status">
+                    <p class="text-gray-400 mb-4">No active live lecture</p>
+                    <button onclick="startLiveLecture()"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Start Live Lecture
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Create Study Room Modal (Same as student dashboard) -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Create Study Room</h3>
+                <button onclick="closeCreateRoomModal()" class="text-gray-400 hover:text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="createRoomForm" class="space-y-4">
+                <div>
+                    <label for="roomName" class="block text-sm font-medium text-gray-300 mb-1">Room Name *</label>
+                    <input type="text" id="roomName" required
+                        class="w-full bg-gray-700 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="subject" class="block text-sm font-medium text-gray-300 mb-1">Subject *</label>
+                    <select id="subject" required
+                        class="w-full bg-gray-700 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Subject</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="English">English</option>
+                        <option value="History">History</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="chapter" class="block text-sm font-medium text-gray-300 mb-1">Chapter *</label>
+                    <input type="text" id="chapter" required
+                        class="w-full bg-gray-700 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., Algebra, Mechanics, Organic Chemistry">
+                </div>
+
+                <div>
+                    <label for="topic" class="block text-sm font-medium text-gray-300 mb-1">Topic *</label>
+                    <input type="text" id="topic" required
+                        class="w-full bg-gray-700 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., Quadratic Equations, Newton's Laws">
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <textarea id="description" rows="3"
+                        class="w-full bg-gray-700 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Brief description of the study session..."></textarea>
+                </div>
+            </form>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeCreateRoomModal()"
+                    class="px-4 py-2 text-gray-400 hover:text-white">Cancel</button>
+                <button onclick="createStudyRoom()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Create Room</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        const API_BASE_URL = 'http://localhost:3000';
+
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', function () {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+
+            // Check if user is actually a teacher
+            if (!currentUser.subject || !currentUser.designation) {
+                alert('Access denied. Teacher account required.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            populateUI(currentUser);
+            loadDashboardData();
+            loadStudyRooms();
+        });
+
+        function populateUI(data) {
+            if (!data) return;
+            document.getElementById('teacher-name').textContent = data.name || 'Teacher';
+            document.getElementById('sidebar-teacher-name').textContent = data.name || 'Teacher';
+
+            if (data.subject) document.getElementById('teacher-subject').textContent = data.subject;
+            if (data.experience) document.getElementById('teacher-experience').textContent = data.experience;
+
+            const initials = data.name ? data.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'T';
+            document.querySelector('#profile-button img').src = `https://placehold.co/40x40/60a5fa/ffffff?text=${initials}`;
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load students
+                const studentsResponse = await fetch(`${API_BASE_URL}/api/teachers/${currentUser.id}/students`);
+                const students = await studentsResponse.json();
+                document.getElementById('student-count').textContent = students.length;
+
+                // Load quizzes
+                const quizzesResponse = await fetch(`${API_BASE_URL}/api/quizzes/all`);
+                const quizzes = await quizzesResponse.json();
+                const teacherQuizzes = quizzes.filter(q => q.teacherId === currentUser.id);
+                document.getElementById('quiz-count').textContent = teacherQuizzes.length;
+
+                // Load study rooms
+                const roomsResponse = await fetch(`${API_BASE_URL}/api/study-rooms`);
+                const rooms = await roomsResponse.json();
+                const teacherRooms = rooms.filter(r => r.creatorId === currentUser.id);
+                document.getElementById('room-count').textContent = teacherRooms.length;
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Navigation
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                showSection(section);
+
+                // Update active link
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.main-content').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Load section-specific data
+            if (sectionId === 'study-rooms') {
+                loadStudyRooms();
+            }
+        }
+
+        // Study Rooms Functions (Same as student dashboard)
+        async function loadStudyRooms() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/study-rooms`);
+                const rooms = await response.json();
+                displayStudyRooms(rooms);
+            } catch (error) {
+                console.error('Error loading study rooms:', error);
+                document.getElementById('teacher-study-rooms-container').innerHTML = `
+                    <div class="col-span-full text-center">
+                        <div class="bg-red-600/20 text-red-400 p-4 rounded-lg">
+                            Failed to load study rooms. Please try again.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function displayStudyRooms(rooms) {
+            const container = document.getElementById('teacher-study-rooms-container');
+
+            if (rooms.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center">
+                        <div class="bg-blue-600/20 text-blue-400 p-8 rounded-lg">
+                            <svg class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a3.004 3.004 0 714.288 0M15 7a3 3 0 11-6 0 3 3 0 716 0zm6 3a2 2 0 11-4 0 2 2 0 714 0zM7 10a2 2 0 11-4 0 2 2 0 714 0z"/>
+                            </svg>
+                            <h3 class="text-lg font-semibold mb-2">No Active Study Rooms</h3>
+                            <p class="text-gray-400">Create the first study room to get started!</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = rooms.map(room => {
+                const subjectColors = {
+                    'Mathematics': 'blue',
+                    'Physics': 'purple',
+                    'Chemistry': 'green',
+                    'Biology': 'yellow',
+                    'Computer Science': 'indigo',
+                    'English': 'pink',
+                    'History': 'orange',
+                    'General': 'gray'
+                };
+                const color = subjectColors[room.subject] || 'gray';
+                const isOwner = room.creatorId === currentUser.id;
+
+                return `
+                    <div class="bg-gray-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer ${isOwner ? 'border-2 border-blue-500' : ''}" onclick="joinStudyRoom('${room.id}')">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-white truncate">${room.roomName}</h3>
+                                <div class="flex items-center space-x-2">
+                                    ${isOwner ? '<span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">Owner</span>' : ''}
+                                    <span class="bg-${color}-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                                        <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 515.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a3.004 3.004 0 714.288 0M15 7a3 3 0 11-6 0 3 3 0 716 0zm6 3a2 2 0 11-4 0 2 2 0 714 0zM7 10a2 2 0 11-4 0 2 2 0 714 0z"/>
+                                        </svg>
+                                        ${room.participantCount}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-300">
+                                    <svg class="h-4 w-4 mr-2 text-${color}-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                    <span class="font-medium">${room.subject}</span>
+                                </div>
+                                
+                                <div class="flex items-center text-sm text-gray-400">
+                                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Chapter: ${room.chapter}
+                                </div>
+                                
+                                <div class="flex items-center text-sm text-gray-400">
+                                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    Topic: ${room.topic}
+                                </div>
+                            </div>
+                            
+                            ${room.description ? `<p class="text-sm text-gray-400 mb-4 line-clamp-2">${room.description}</p>` : ''}
+                            
+                            <div class="flex justify-between items-center">
+                                <div class="text-xs text-gray-500">
+                                    <div>Created by: <span class="text-${color}-400 font-medium">${room.creatorName}</span></div>
+                                    <div>${new Date(room.createdAt).toLocaleDateString()}</div>
+                                </div>
+                                <button class="bg-${color}-600 hover:bg-${color}-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                                    ${isOwner ? 'Manage Room' : 'Join Room'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openCreateRoomModal() {
+            document.getElementById('createRoomModal').classList.remove('hidden');
+            document.getElementById('createRoomModal').classList.add('flex');
+
+            // Pre-fill subject if teacher has one
+            if (currentUser.subject) {
+                document.getElementById('subject').value = currentUser.subject;
+            }
+        }
+
+        function closeCreateRoomModal() {
+            document.getElementById('createRoomModal').classList.add('hidden');
+            document.getElementById('createRoomModal').classList.remove('flex');
+            document.getElementById('createRoomForm').reset();
+        }
+
+        async function createStudyRoom() {
+            const roomName = document.getElementById('roomName').value.trim();
+            const subject = document.getElementById('subject').value;
+            const chapter = document.getElementById('chapter').value.trim();
+            const topic = document.getElementById('topic').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!roomName || !subject || !chapter || !topic) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/study-rooms/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        creatorId: currentUser.id,
+                        creatorName: currentUser.name,
+                        creatorType: 'teacher',
+                        roomName,
+                        subject,
+                        chapter,
+                        topic,
+                        description
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeCreateRoomModal();
+                    loadStudyRooms();
+                    loadDashboardData(); // Refresh dashboard counts
+
+                    // Show success message
+                    const container = document.getElementById('teacher-study-rooms-container');
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'col-span-full bg-green-600/20 text-green-400 p-4 rounded-lg text-center';
+                    successMsg.innerHTML = `
+                        <svg class="h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Study room "${roomName}" created successfully!
+                    `;
+                    container.insertBefore(successMsg, container.firstChild);
+
+                    setTimeout(() => successMsg.remove(), 3000);
+
+                    // Auto-join the created room after a short delay
+                    setTimeout(() => joinStudyRoom(result.room.id), 1000);
+                } else {
+                    alert(result.message || 'Failed to create study room.');
+                }
+            } catch (error) {
+                console.error('Error creating study room:', error);
+                alert('Failed to create study room. Please try again.');
+            }
+        }
+
+        async function joinStudyRoom(roomId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/study-rooms/${roomId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        userName: currentUser.name,
+                        userType: 'teacher'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('currentRoom', JSON.stringify(result.room));
+                    window.location.href = `study-room-simple.html?id=${roomId}`;
+                } else {
+                    alert(result.message || 'Failed to join study room.');
+                }
+            } catch (error) {
+                console.error('Error joining study room:', error);
+                alert('Failed to join study room. Please try again.');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('createRoomModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeCreateRoomModal();
+            }
+        });
+
+        function startLiveLecture() {
+            // Redirect to live lecture interface
+            window.location.href = 'live-lecture.html';
+        }
+    </script>
+</body>
+
+</html>

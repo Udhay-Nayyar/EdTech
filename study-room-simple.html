@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Room - EdTech Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Study Room</h1>
+            <a href="dashboard-new.html" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Back to Dashboard</a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Video Area -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 rounded-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">Video Conference</h2>
+                    <div class="bg-gray-700 rounded-lg h-64 flex items-center justify-center">
+                        <p class="text-gray-400">Video conference will appear here</p>
+                    </div>
+                    
+                    <div class="flex justify-center space-x-4 mt-4">
+                        <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                            📹 Video On
+                        </button>
+                        <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                            🎤 Audio On
+                        </button>
+                        <button class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">
+                            🖥️ Share Screen
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Participants -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-bold mb-4">Participants (1)</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm">
+                                A
+                            </div>
+                            <span>Alice Johnson (You)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-bold mb-4">Chat</h3>
+                    <div class="bg-gray-700 rounded p-3 h-48 overflow-y-auto mb-3">
+                        <div class="text-sm text-gray-400 mb-2">
+                            <strong>System:</strong> Welcome to the study room!
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <input type="text" placeholder="Type a message..." class="flex-1 bg-gray-700 rounded-l px-3 py-2 text-sm">
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Room Info -->
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-bold mb-2">Room Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-400">Subject:</span>
+                    <div class="font-medium">Physics</div>
+                </div>
+                <div>
+                    <span class="text-gray-400">Chapter:</span>
+                    <div class="font-medium">Mechanics</div>
+                </div>
+                <div>
+                    <span class="text-gray-400">Topic:</span>
+                    <div class="font-medium">Newton's Laws</div>
+                </div>
+                <div>
+                    <span class="text-gray-400">Created by:</span>
+                    <div class="font-medium">Alice Johnson</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple working study room
+        console.log('✅ Study room loaded successfully!');
+        
+        // Get room info from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('id');
+        
+        if (roomId) {
+            console.log('📍 Room ID:', roomId);
+        }
+        
+        // Simple chat functionality
+        const chatInput = document.querySelector('input[type="text"]');
+        const sendButton = document.querySelector('button:last-of-type');
+        const chatArea = document.querySelector('.bg-gray-700.rounded.p-3');
+        
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'text-sm mb-2';
+                messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+                chatArea.appendChild(messageDiv);
+                chatInput.value = '';
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+        }
+        
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
