@@ -1,13 +1,39 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 const PORT = 3000;
 
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
+
+// Setup multer for file uploads (store temporarily in 'uploads/' folder)
+const upload = multer({ dest: 'uploads/' });
+
+// Simulated cloud storage folder (for demo purposes)
+const cloudStorageFolder = path.join(__dirname, 'cloud_videos');
+if (!fs.existsSync(cloudStorageFolder)) {
+  fs.mkdirSync(cloudStorageFolder);
+}
+
+// Simulated cloud storage folder for notes (for demo purposes)
+const cloudNotesFolder = path.join(__dirname, 'cloud_notes');
+if (!fs.existsSync(cloudNotesFolder)) {
+  fs.mkdirSync(cloudNotesFolder);
+}
 
 // Serve static files from EdTech directory
 app.use(express.static(path.join(__dirname, '..', 'EdTech')));
@@ -31,6 +57,15 @@ let quizzes = [
     { id: 2, title: "Intro to Physics", subject: "Physics", teacherId: 102, startTime: null, endTime: null, isActive: true, createdOn: "2025-10-01T12:00:00.000Z", questions: [{ text: "What is F=ma?", options: ["Newton's Second Law", "Ohm's Law", "The Pythagorean Theorem"], correctAnswerIndex: 0, points: 5 }, { text: "What is the unit of force?", options: ["Newton", "Watt", "Joule"], correctAnswerIndex: 0, points: 5 }] }
 ];
 let quizResults = [];
+
+// In-memory store for uploaded videos metadata
+let uploadedVideos = [];
+
+// In-memory store for uploaded notes metadata
+let uploadedNotes = [];
+
+// In-memory store for live lectures
+let activeLectures = [];
 
 // ==========================================================
 // API Endpoints
@@ -218,7 +253,7 @@ app.get('/api/leaderboard', (req, res) => {
         playerStats[result.studentId].points += result.score;
         playerStats[result.studentId].totalTimeTaken += result.timeTaken;
     });
-    
+
     const leaderboard = Object.values(playerStats).sort((a, b) => {
         if (b.points !== a.points) {
             return b.points - a.points;
@@ -228,8 +263,175 @@ app.get('/api/leaderboard', (req, res) => {
     res.json(leaderboard);
 });
 
+// --- VIDEO MANAGEMENT Endpoints ---
+app.post('/api/videos/upload', upload.single('video'), (req, res) => {
+    try {
+        console.log('Received video upload request');
+        console.log('Request body:', req.body);
+        console.log('Uploaded file:', req.file);
+
+        const { teacherName, subject, chapter, topic } = req.body;
+        const videoFile = req.file;
+
+        if (!teacherName || !subject || !chapter || !topic || !videoFile) {
+            console.log('Missing required fields or video file.');
+            return res.status(400).json({ error: 'Missing required fields or video file.' });
+        }
+
+        // Move file from temp upload folder to cloud storage folder with original filename
+        const targetPath = path.join(cloudStorageFolder, videoFile.originalname);
+        fs.renameSync(videoFile.path, targetPath);
+
+        // Store metadata with video URL (simulate cloud URL)
+        const videoUrl = `http://localhost:3000/cloud_videos/${videoFile.originalname}`;
+        const videoData = {
+            id: Date.now().toString(),
+            teacherName,
+            subject,
+            chapter,
+            topic,
+            videoUrl,
+            uploadedOn: new Date()
+        };
+        uploadedVideos.push(videoData);
+
+        console.log('Video metadata stored:', videoData);
+
+        res.status(201).json({ message: 'Video uploaded successfully.', video: videoData });
+    } catch (error) {
+        console.error('Video upload error:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Request body at error:', req.body);
+        console.error('Request file at error:', req.file);
+        res.status(500).json({ error: 'Failed to upload video.' });
+    }
+});
+
+app.get('/api/videos', (req, res) => {
+    res.json(uploadedVideos);
+});
+
+// --- NOTES MANAGEMENT Endpoints ---
+app.post('/api/notes/upload', upload.single('notes'), (req, res) => {
+    try {
+        console.log('Received notes upload request');
+        console.log('Request body:', req.body);
+        console.log('Uploaded file:', req.file);
+
+        const { teacherName, subject, chapter, topic } = req.body;
+        const notesFile = req.file;
+
+        if (!teacherName || !subject || !chapter || !topic || !notesFile) {
+            console.log('Missing required fields or notes file.');
+            return res.status(400).json({ error: 'Missing required fields or notes file.' });
+        }
+
+        // Move file from temp upload folder to cloud storage folder with original filename
+        const targetPath = path.join(cloudNotesFolder, notesFile.originalname);
+        fs.renameSync(notesFile.path, targetPath);
+
+        // Store metadata with notes URL (simulate cloud URL)
+        const notesUrl = `http://localhost:3000/cloud_notes/${notesFile.originalname}`;
+        const notesData = {
+            id: Date.now().toString(),
+            teacherName,
+            subject,
+            chapter,
+            topic,
+            notesUrl,
+            uploadedOn: new Date()
+        };
+        uploadedNotes.push(notesData);
+
+        console.log('Notes metadata stored:', notesData);
+
+        res.status(201).json({ message: 'Notes uploaded successfully.', notes: notesData });
+    } catch (error) {
+        console.error('Notes upload error:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Request body at error:', req.body);
+        console.error('Request file at error:', req.file);
+        res.status(500).json({ error: 'Failed to upload notes.' });
+    }
+});
+
+app.get('/api/notes', (req, res) => {
+    res.json(uploadedNotes);
+});
+
+// --- LIVE LECTURE Endpoints ---
+app.post('/api/live/start', (req, res) => {
+    const { teacherId, topic } = req.body;
+    if (!teacherId || !topic) return res.status(400).json({ message: 'Teacher ID and topic are required.' });
+    const teacher = teachers.find(t => t.id === parseInt(teacherId));
+    if (!teacher) return res.status(404).json({ message: 'Teacher not found.' });
+
+    // End any existing live lecture by this teacher
+    activeLectures = activeLectures.filter(l => l.teacherId !== parseInt(teacherId));
+
+    const newLecture = {
+        id: Date.now().toString(),
+        teacherId: parseInt(teacherId),
+        teacherName: teacher.name,
+        topic,
+        startedAt: new Date().toISOString()
+    };
+    activeLectures.push(newLecture);
+    console.log(`✅ Live lecture started: ${topic} by ${teacher.name}`);
+    res.status(201).json({ message: 'Live lecture started.', lecture: newLecture });
+});
+
+app.get('/api/live/status', (req, res) => {
+    res.json(activeLectures.length > 0 ? activeLectures[0] : null);
+});
+
+app.delete('/api/live/end', (req, res) => {
+    const { teacherId } = req.body;
+    if (!teacherId) return res.status(400).json({ message: 'Teacher ID is required.' });
+    const initialLength = activeLectures.length;
+    activeLectures = activeLectures.filter(l => l.teacherId !== parseInt(teacherId));
+    if (activeLectures.length < initialLength) {
+        console.log(`✅ Live lecture ended by teacher ${teacherId}`);
+        res.status(200).json({ message: 'Live lecture ended.' });
+    } else {
+        res.status(404).json({ message: 'No active lecture found for this teacher.' });
+    }
+});
+
+// --- Socket.io for WebRTC Signaling ---
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+
+    socket.on('join-live', (data) => {
+        socket.join('live-room');
+        console.log(`User ${socket.id} joined live room`);
+    });
+
+    socket.on('offer', (data) => {
+        socket.to('live-room').emit('offer', data);
+    });
+
+    socket.on('answer', (data) => {
+        socket.to('live-room').emit('answer', data);
+    });
+
+    socket.on('ice-candidate', (data) => {
+        socket.to('live-room').emit('ice-candidate', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
+
+// Serve static files from cloud storage folder
+app.use('/cloud_videos', express.static(cloudStorageFolder));
+
+// Serve static files from cloud notes folder
+app.use('/cloud_notes', express.static(cloudNotesFolder));
+
 // --- Start the Server ---
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 

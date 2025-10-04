@@ -101,7 +101,7 @@
                 </div>
                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-zinc-800 p-6 rounded-xl"><h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3><div class="space-y-3"><button class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="video" class="mr-3 h-5 w-5 text-blue-400"></i> <span class="text-white">Upload Video</span></button><button id="new-quiz-btn" class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="brain-circuit" class="mr-3 h-5 w-5 text-purple-400"></i> <span class="text-white">Create Quiz</span></button><button class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="book-copy" class="mr-3 h-5 w-5 text-green-400"></i> <span class="text-white">Add Notes</span></button><button class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="puzzle" class="mr-3 h-5 w-5 text-amber-400"></i> <span class="text-white">New Assignment</span></button></div></div>
+                        <div class="bg-zinc-800 p-6 rounded-xl"><h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3><div class="space-y-3"><button id="upload-video-btn" class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="video" class="mr-3 h-5 w-5 text-blue-400"></i> <span class="text-white">Upload Video</span></button><button id="new-quiz-btn" class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="brain-circuit" class="mr-3 h-5 w-5 text-purple-400"></i> <span class="text-white">Create Quiz</span></button><button id="add-notes-btn" class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="book-copy" class="mr-3 h-5 w-5 text-green-400"></i> <span class="text-white">Add Notes</span></button><button id="start-live-btn" class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="radio" class="mr-3 h-5 w-5 text-red-400"></i> <span class="text-white">Start Live Lecture</span></button><button class="w-full flex items-center p-3 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg transition-colors"><i data-lucide="puzzle" class="mr-3 h-5 w-5 text-amber-400"></i> <span class="text-white">New Assignment</span></button></div></div>
                         <div class="bg-zinc-800 p-6 rounded-xl"><h3>Student Alerts</h3>...</div>
                     </div>
                     <div class="lg:col-span-2 space-y-6">
@@ -150,6 +150,64 @@
         </div>
     </div>
 
+    <!-- VIDEO UPLOAD MODAL -->
+    <div id="video-upload-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col text-black">
+            <div class="p-6 flex justify-between items-center border-b border-zinc-200 flex-shrink-0">
+                <div><h2 class="text-2xl font-bold text-zinc-800">Upload Video</h2></div>
+                <button id="close-video-modal" type="button" class="p-2 text-zinc-500 hover:bg-zinc-100 rounded-full"><i data-lucide="x" class="h-5 w-5"></i></button>
+            </div>
+            <form id="video-upload-form" class="flex-grow overflow-y-auto custom-scrollbar p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="video-chapter" class="block text-sm font-medium text-zinc-700 mb-1">Chapter</label>
+                        <input type="text" id="video-chapter" name="chapter" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label for="video-topic" class="block text-sm font-medium text-zinc-700 mb-1">Topic</label>
+                        <input type="text" id="video-topic" name="topic" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label for="video-file" class="block text-sm font-medium text-zinc-700 mb-1">Video File</label>
+                        <input type="file" id="video-file" name="video" accept="video/*" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+            </form>
+            <div class="p-6 bg-zinc-50 border-t flex justify-end items-center rounded-b-2xl flex-shrink-0">
+                <button type="submit" form="video-upload-form" class="px-5 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">Upload Video</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTES UPLOAD MODAL -->
+    <div id="notes-upload-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col text-black">
+            <div class="p-6 flex justify-between items-center border-b border-zinc-200 flex-shrink-0">
+                <div><h2 class="text-2xl font-bold text-zinc-800">Upload Notes</h2></div>
+                <button id="close-notes-modal" type="button" class="p-2 text-zinc-500 hover:bg-zinc-100 rounded-full"><i data-lucide="x" class="h-5 w-5"></i></button>
+            </div>
+            <form id="notes-upload-form" class="flex-grow overflow-y-auto custom-scrollbar p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="notes-chapter" class="block text-sm font-medium text-zinc-700 mb-1">Chapter</label>
+                        <input type="text" id="notes-chapter" name="chapter" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label for="notes-topic" class="block text-sm font-medium text-zinc-700 mb-1">Topic</label>
+                        <input type="text" id="notes-topic" name="topic" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label for="notes-file" class="block text-sm font-medium text-zinc-700 mb-1">Notes File</label>
+                        <input type="file" id="notes-file" name="notes" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+            </form>
+            <div class="p-6 bg-zinc-50 border-t flex justify-end items-center rounded-b-2xl flex-shrink-0">
+                <button type="submit" form="notes-upload-form" class="px-5 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">Upload Notes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- UPDATED QUIZ MODAL with Time and Correct Answer Inputs -->
     <div id="quiz-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col text-black">
@@ -177,6 +235,27 @@
                 </div>
             </form>
             <div class="p-6 bg-zinc-50 border-t flex justify-between items-center rounded-b-2xl flex-shrink-0"><button type="button" id="wizard-prev-btn" class="px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-200 rounded-lg transition-colors hidden">Back</button><div class="flex-grow"></div><button type="button" id="wizard-next-btn" class="px-5 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">Next</button><button type="submit" form="quiz-form" id="wizard-submit-btn" class="px-5 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors hidden">Create Quiz</button></div>
+        </div>
+    </div>
+
+    <!-- LIVE LECTURE MODAL -->
+    <div id="live-lecture-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col text-black">
+            <div class="p-6 flex justify-between items-center border-b border-zinc-200 flex-shrink-0">
+                <div><h2 class="text-2xl font-bold text-zinc-800">Start Live Lecture</h2></div>
+                <button id="close-live-modal" type="button" class="p-2 text-zinc-500 hover:bg-zinc-100 rounded-full"><i data-lucide="x" class="h-5 w-5"></i></button>
+            </div>
+            <form id="live-lecture-form" class="flex-grow overflow-y-auto custom-scrollbar p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="lecture-topic" class="block text-sm font-medium text-zinc-700 mb-1">Topic</label>
+                        <input type="text" id="lecture-topic" name="topic" required class="w-full border-zinc-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+            </form>
+            <div class="p-6 bg-zinc-50 border-t flex justify-end items-center rounded-b-2xl flex-shrink-0">
+                <button type="submit" form="live-lecture-form" class="px-5 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Start Lecture</button>
+            </div>
         </div>
     </div>
 
@@ -500,6 +579,164 @@
 
         // Load initial data for the dashboard
         loadInitialData();
+
+        // VIDEO UPLOAD MODAL LOGIC
+        const videoUploadModal = document.getElementById('video-upload-modal');
+        const uploadVideoBtn = document.getElementById('upload-video-btn');
+        const closeVideoBtn = document.getElementById('close-video-modal');
+        const videoUploadForm = document.getElementById('video-upload-form');
+
+        uploadVideoBtn.addEventListener('click', () => {
+            videoUploadModal.classList.remove('hidden');
+        });
+
+        closeVideoBtn.addEventListener('click', () => {
+            videoUploadModal.classList.add('hidden');
+        });
+
+        videoUploadForm.addEventListener('submit', async (e) => {
+            console.log('Video upload form submit event triggered');
+            e.preventDefault();
+            const formData = new FormData(videoUploadForm);
+
+            // Log FormData keys and values for debugging
+            console.log('FormData entries:');
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}:`, pair[1]);
+            }
+
+            // Validate video file input
+            const videoFileInput = document.getElementById('video-file');
+            if (!videoFileInput.files || videoFileInput.files.length === 0) {
+                alert('Please select a video file to upload.');
+                return;
+            }
+
+            // Get teacher data from the loaded teacherData
+            const teacherResponse = await fetch(`${API_BASE_URL}/api/teachers/${teacherId}`);
+            if (!teacherResponse.ok) {
+                console.error('Failed to fetch teacher data:', teacherResponse.statusText);
+                alert('Failed to retrieve teacher information. Please try again.');
+                return;
+            }
+            const teacherData = await teacherResponse.json();
+
+            // Append teacher data to formData
+            formData.append('teacherName', teacherData.name);
+            formData.append('subject', teacherData.subject);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/videos/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Failed to upload video.');
+                const result = await response.json();
+                alert('Video uploaded successfully!');
+                videoUploadForm.reset();
+                videoUploadModal.classList.add('hidden');
+            } catch (error) {
+                console.error('Video upload error:', error);
+                alert('Failed to upload video. Please try again.');
+            }
+        });
+
+        // NOTES UPLOAD MODAL LOGIC
+        const notesUploadModal = document.getElementById('notes-upload-modal');
+        const addNotesBtn = document.getElementById('add-notes-btn');
+        const closeNotesBtn = document.getElementById('close-notes-modal');
+        const notesUploadForm = document.getElementById('notes-upload-form');
+
+        addNotesBtn.addEventListener('click', () => {
+            notesUploadModal.classList.remove('hidden');
+        });
+
+        closeNotesBtn.addEventListener('click', () => {
+            notesUploadModal.classList.add('hidden');
+        });
+
+        notesUploadForm.addEventListener('submit', async (e) => {
+            console.log('Notes upload form submit event triggered');
+            e.preventDefault();
+            const formData = new FormData(notesUploadForm);
+
+            // Log FormData keys and values for debugging
+            console.log('FormData entries:');
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}:`, pair[1]);
+            }
+
+            // Validate notes file input
+            const notesFileInput = document.getElementById('notes-file');
+            if (!notesFileInput.files || notesFileInput.files.length === 0) {
+                alert('Please select a notes file to upload.');
+                return;
+            }
+
+            // Get teacher data from the loaded teacherData
+            const teacherResponse = await fetch(`${API_BASE_URL}/api/teachers/${teacherId}`);
+            if (!teacherResponse.ok) {
+                console.error('Failed to fetch teacher data:', teacherResponse.statusText);
+                alert('Failed to retrieve teacher information. Please try again.');
+                return;
+            }
+            const teacherData = await teacherResponse.json();
+
+            // Append teacher data to formData
+            formData.append('teacherName', teacherData.name);
+            formData.append('subject', teacherData.subject);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Failed to upload notes.');
+                const result = await response.json();
+                alert('Notes uploaded successfully!');
+                notesUploadForm.reset();
+                notesUploadModal.classList.add('hidden');
+            } catch (error) {
+                console.error('Notes upload error:', error);
+                alert('Failed to upload notes. Please try again.');
+            }
+        });
+
+        // LIVE LECTURE MODAL LOGIC
+        const liveLectureModal = document.getElementById('live-lecture-modal');
+        const startLiveBtn = document.getElementById('start-live-btn');
+        const closeLiveBtn = document.getElementById('close-live-modal');
+        const liveLectureForm = document.getElementById('live-lecture-form');
+
+        startLiveBtn.addEventListener('click', () => {
+            liveLectureModal.classList.remove('hidden');
+        });
+
+        closeLiveBtn.addEventListener('click', () => {
+            liveLectureModal.classList.add('hidden');
+        });
+
+        liveLectureForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(liveLectureForm);
+            const topic = formData.get('topic');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/live/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ teacherId: parseInt(teacherId), topic })
+                });
+                if (!response.ok) throw new Error('Failed to start live lecture.');
+                const result = await response.json();
+                alert('Live lecture started successfully!');
+                liveLectureForm.reset();
+                liveLectureModal.classList.add('hidden');
+            } catch (error) {
+                console.error('Live lecture start error:', error);
+                alert('Failed to start live lecture. Please try again.');
+            }
+        });
     });
 </script>
 </body>
