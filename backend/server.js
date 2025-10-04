@@ -67,6 +67,10 @@ let uploadedNotes = [];
 // In-memory store for live lectures
 let activeLectures = [];
 
+// In-memory store for study rooms
+let studyRooms = [];
+let studyRoomParticipants = {}; // roomId -> array of participants
+
 // ==========================================================
 // API Endpoints
 // ==========================================================
@@ -359,6 +363,164 @@ app.get('/api/notes', (req, res) => {
     res.json(uploadedNotes);
 });
 
+// --- STUDY ROOM Endpoints ---
+app.post('/api/study-rooms/create', (req, res) => {
+    const { creatorId, creatorName, creatorType, roomName, subject, chapter, topic, description } = req.body;
+    if (!creatorId || !creatorName || !creatorType || !roomName || !subject || !chapter || !topic) {
+        return res.status(400).json({ message: 'Creator ID, name, type, room name, subject, chapter, and topic are required.' });
+    }
+
+    const newRoom = {
+        id: Date.now().toString(),
+        roomName,
+        subject,
+        chapter,
+        topic,
+        description: description || '',
+        creatorId: parseInt(creatorId),
+        creatorName,
+        creatorType, // 'student' or 'teacher'
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        participantCount: 0
+    };
+
+    studyRooms.push(newRoom);
+    studyRoomParticipants[newRoom.id] = [];
+    
+    console.log(`✅ Study room created: ${roomName} by ${creatorName} (${creatorType}) - ${subject}: ${chapter} - ${topic}`);
+    console.log(`✅ Room ID: ${newRoom.id}`);
+    console.log(`✅ Total rooms now:`, studyRooms.length);
+    
+    res.status(201).json({ message: 'Study room created successfully.', room: newRoom });
+});
+
+app.get('/api/study-rooms', (req, res) => {
+    const roomsWithParticipants = studyRooms
+        .filter(room => room.isActive)
+        .map(room => ({
+            ...room,
+            participantCount: studyRoomParticipants[room.id] ? studyRoomParticipants[room.id].length : 0
+        }))
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    res.json(roomsWithParticipants);
+});
+
+app.get('/api/study-rooms/:id', (req, res) => {
+    const roomId = req.params.id;
+    const room = studyRooms.find(r => r.id === roomId);
+    if (!room) return res.status(404).json({ message: 'Study room not found.' });
+    
+    const participants = studyRoomParticipants[roomId] || [];
+    res.json({ ...room, participants });
+});
+
+app.post('/api/study-rooms/:id/join', (req, res) => {
+    const roomId = req.params.id;
+    const { userId, userName, userType } = req.body;
+    
+    console.log(`🔍 Looking for room ID: ${roomId}`);
+    console.log(`🔍 Available rooms:`, studyRooms.map(r => ({ id: r.id, name: r.roomName })));
+    
+    const room = studyRooms.find(r => r.id === roomId);
+    if (!room) {
+        console.log(`❌ Room not found: ${roomId}`);
+        console.log(`❌ Available room IDs:`, studyRooms.map(r => r.id));
+        return res.status(404).json({ message: 'Study room not found.' });
+    }
+    if (!room.isActive) {
+        console.log(`❌ Room inactive: ${roomId}`);
+        return res.status(404).json({ message: 'Study room is inactive.' });
+    }
+    
+    if (!studyRoomParticipants[roomId]) studyRoomParticipants[roomId] = [];
+    
+    // Check if user already in room
+    const existingParticipant = studyRoomParticipants[roomId].find(p => p.userId === parseInt(userId));
+    if (existingParticipant) {
+        return res.json({ message: 'Already in room.', room: { ...room, participants: studyRoomParticipants[roomId] } });
+    }
+    
+    const participant = {
+        userId: parseInt(userId),
+        userName,
+        userType,
+        joinedAt: new Date().toISOString(),
+        socketId: null
+    };
+    
+    studyRoomParticipants[roomId].push(participant);
+    console.log(`✅ ${userName} (${userType}) joined study room: ${room.roomName}`);
+    
+    res.json({ message: 'Joined study room successfully.', room: { ...room, participants: studyRoomParticipants[roomId] } });
+});
+
+app.post('/api/study-rooms/:id/leave', (req, res) => {
+    const roomId = req.params.id;
+    const { userId } = req.body;
+    
+    if (!studyRoomParticipants[roomId]) return res.status(404).json({ message: 'Study room not found.' });
+    
+    const initialLength = studyRoomParticipants[roomId].length;
+    studyRoomParticipants[roomId] = studyRoomParticipants[roomId].filter(p => p.userId !== parseInt(userId));
+    
+    if (studyRoomParticipants[roomId].length < initialLength) {
+        console.log(`✅ User ${userId} left study room ${roomId}`);
+        res.json({ message: 'Left study room successfully.' });
+    } else {
+        res.status(404).json({ message: 'User not found in room.' });
+    }
+});
+
+app.post('/api/study-rooms/:id/remove-participant', (req, res) => {
+    const roomId = req.params.id;
+    const { teacherId, participantId } = req.body;
+    
+    const room = studyRooms.find(r => r.id === roomId);
+    if (!room) return res.status(404).json({ message: 'Study room not found.' });
+    
+    // Check if requester is a teacher or room creator
+    const requester = studyRoomParticipants[roomId]?.find(p => p.userId === parseInt(teacherId));
+    const isCreator = room.creatorId === parseInt(teacherId);
+    
+    if (!requester || (requester.userType !== 'teacher' && !isCreator)) {
+        return res.status(403).json({ message: 'Only teachers or room creators can remove participants.' });
+    }
+    
+    if (!studyRoomParticipants[roomId]) return res.status(404).json({ message: 'Study room not found.' });
+    
+    const initialLength = studyRoomParticipants[roomId].length;
+    const removedParticipant = studyRoomParticipants[roomId].find(p => p.userId === parseInt(participantId));
+    studyRoomParticipants[roomId] = studyRoomParticipants[roomId].filter(p => p.userId !== parseInt(participantId));
+    
+    if (studyRoomParticipants[roomId].length < initialLength) {
+        console.log(`✅ Participant ${participantId} removed from study room ${roomId} by ${teacherId}`);
+        res.json({ message: 'Participant removed successfully.', removedParticipant });
+    } else {
+        res.status(404).json({ message: 'Participant not found in room.' });
+    }
+});
+
+app.delete('/api/study-rooms/:id', (req, res) => {
+    const roomId = req.params.id;
+    const { creatorId } = req.body;
+    
+    const room = studyRooms.find(r => r.id === roomId);
+    if (!room) return res.status(404).json({ message: 'Study room not found.' });
+    
+    if (room.creatorId !== parseInt(creatorId)) {
+        return res.status(403).json({ message: 'Only room creator can delete the room.' });
+    }
+    
+    // Mark room as inactive instead of deleting
+    room.isActive = false;
+    delete studyRoomParticipants[roomId];
+    
+    console.log(`✅ Study room deleted: ${room.roomName} by creator ${creatorId}`);
+    res.json({ message: 'Study room deleted successfully.' });
+});
+
 // --- LIVE LECTURE Endpoints ---
 app.post('/api/live/start', (req, res) => {
     const { teacherId, topic } = req.body;
@@ -402,11 +564,126 @@ app.delete('/api/live/end', (req, res) => {
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
+    // Live lecture events
     socket.on('join-live', (data) => {
         socket.join('live-room');
         console.log(`User ${socket.id} joined live room`);
     });
 
+    // Study room events
+    socket.on('join-study-room', (data) => {
+        const { roomId, userId, userName, userType } = data;
+        socket.join(`study-room-${roomId}`);
+        
+        // Update participant socket ID
+        if (studyRoomParticipants[roomId]) {
+            const participant = studyRoomParticipants[roomId].find(p => p.userId === parseInt(userId));
+            if (participant) {
+                participant.socketId = socket.id;
+            }
+        }
+        
+        console.log(`User ${userName} (${socket.id}) joined study room ${roomId}`);
+        
+        // Notify other participants
+        socket.to(`study-room-${roomId}`).emit('participant-joined', {
+            userId: parseInt(userId),
+            userName,
+            userType,
+            socketId: socket.id
+        });
+        
+        // Send current participants list to new joiner
+        const participants = studyRoomParticipants[roomId] || [];
+        socket.emit('participants-list', participants);
+    });
+
+    socket.on('leave-study-room', (data) => {
+        const { roomId, userId, userName } = data;
+        socket.leave(`study-room-${roomId}`);
+        
+        // Remove participant socket ID
+        if (studyRoomParticipants[roomId]) {
+            const participant = studyRoomParticipants[roomId].find(p => p.userId === parseInt(userId));
+            if (participant) {
+                participant.socketId = null;
+            }
+        }
+        
+        console.log(`User ${userName} (${socket.id}) left study room ${roomId}`);
+        
+        // Notify other participants
+        socket.to(`study-room-${roomId}`).emit('participant-left', {
+            userId: parseInt(userId),
+            userName,
+            socketId: socket.id
+        });
+    });
+
+    // WebRTC signaling for study rooms
+    socket.on('study-room-offer', (data) => {
+        const { roomId, targetSocketId, offer, senderInfo } = data;
+        if (targetSocketId) {
+            socket.to(targetSocketId).emit('study-room-offer', { offer, senderInfo, senderSocketId: socket.id });
+        } else {
+            socket.to(`study-room-${roomId}`).emit('study-room-offer', { offer, senderInfo, senderSocketId: socket.id });
+        }
+    });
+
+    socket.on('study-room-answer', (data) => {
+        const { targetSocketId, answer, senderInfo } = data;
+        socket.to(targetSocketId).emit('study-room-answer', { answer, senderInfo, senderSocketId: socket.id });
+    });
+
+    socket.on('study-room-ice-candidate', (data) => {
+        const { roomId, targetSocketId, candidate, senderInfo } = data;
+        if (targetSocketId) {
+            socket.to(targetSocketId).emit('study-room-ice-candidate', { candidate, senderInfo, senderSocketId: socket.id });
+        } else {
+            socket.to(`study-room-${roomId}`).emit('study-room-ice-candidate', { candidate, senderInfo, senderSocketId: socket.id });
+        }
+    });
+
+    // Screen sharing events
+    socket.on('start-screen-share', (data) => {
+        const { roomId, sharerInfo } = data;
+        socket.to(`study-room-${roomId}`).emit('screen-share-started', { sharerInfo, sharerSocketId: socket.id });
+    });
+
+    socket.on('stop-screen-share', (data) => {
+        const { roomId, sharerInfo } = data;
+        socket.to(`study-room-${roomId}`).emit('screen-share-stopped', { sharerInfo, sharerSocketId: socket.id });
+    });
+
+    // Chat messages in study room
+    socket.on('study-room-message', (data) => {
+        const { roomId, message, senderInfo } = data;
+        socket.to(`study-room-${roomId}`).emit('study-room-message', {
+            message,
+            senderInfo,
+            timestamp: new Date().toISOString()
+        });
+    });
+
+    // Participant removal by teacher
+    socket.on('remove-participant', (data) => {
+        const { roomId, participantSocketId, participantInfo, removerInfo } = data;
+        
+        // Notify the removed participant
+        socket.to(participantSocketId).emit('removed-from-room', {
+            roomId,
+            removerInfo,
+            message: `You have been removed from the study room by ${removerInfo.userName}`
+        });
+        
+        // Notify other participants
+        socket.to(`study-room-${roomId}`).emit('participant-removed', {
+            participantInfo,
+            removerInfo
+        });
+    });
+
+    // Legacy live lecture events
     socket.on('offer', (data) => {
         socket.to('live-room').emit('offer', data);
     });
@@ -421,6 +698,23 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
+        
+        // Clean up participant socket IDs on disconnect
+        Object.keys(studyRoomParticipants).forEach(roomId => {
+            if (studyRoomParticipants[roomId]) {
+                studyRoomParticipants[roomId].forEach(participant => {
+                    if (participant.socketId === socket.id) {
+                        participant.socketId = null;
+                        // Notify room about disconnection
+                        socket.to(`study-room-${roomId}`).emit('participant-disconnected', {
+                            userId: participant.userId,
+                            userName: participant.userName,
+                            socketId: socket.id
+                        });
+                    }
+                });
+            }
+        });
     });
 });
 
